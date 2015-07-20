@@ -1,0 +1,39 @@
+# Complete work of William Shakespeare
+
+rawc<-readLines(file("http://www.gutenberg.org/files/100/100.txt")) # Read the text lines
+
+dat<-paste(rawc[173:124369],collapse=" ") # 
+dat<-tolower(dat)
+dat<-removeNumbers(dat)
+dat<-removePunctuation(dat)
+
+dat<-removeWords(dat,stopwords("english"))
+exclude<-unique(strsplit(removePunctuation(removeNumbers(tolower(paste(rawc[2802:2813],collapse="")))),split=" ")[[1]])
+exclude<-append(exclude,c("shall","thee","thy","thus","will","come","know","may","upon","hath","now","well",
+                          "make","let","see","tell","yet","like","put","speak","give","speak","can","comes",
+                          "makes","sees","tells","likes","puts","speaks","gives","speaks","knows","say","says",
+                          "take","takes","exeunt","though","hear","think","hears","thinks","listen","listens",
+                          "hear","hears","follow","commercially","commercial","readable","personal","doth",
+                          "membership","stand","therefore","complete","tis","electronic","prohibited","must",
+                          "look","looks","call","calls","done","prove","whose","enter","one","words","thou",
+                          "came","much","never","wit","leave","even","ever","distributed","keep","stay","made",
+                          "scene","many","away","exit","shalt"))
+dat<-removeWords(dat,exclude)
+
+
+dat<-strsplit(dat,split=" ")[[1]]
+dat<-dat[dat!=""]
+dat<-dat[nchar(dat)>2]
+
+dat.tbl<-tbl_df(as.data.frame(dat))
+dat.tbl<-count(dat.tbl,sort=TRUE,vars=dat)
+
+dat.tbl<-dat.tbl[1:300,]
+
+# Alternative
+# dat.tbl<-dat.tbl[,"n"]/sum(dat.tbl[,"n"]) # Transform counts into percentages
+# dat.tbl<-cbind(dat.tbl,cumsum(dat.tbl[,"n"])) # Add cumulated sum of shares
+# names(dat.tbl)<-c("vars","n","cumsum") # Rename columns 
+# dat.tbl<-dat.tbl[dat.tbl[,"cumsum"]<=.33,] # Extract the first third of most frequent words
+
+tagcloud(dat.tbl$vars,weights=dat.tbl$n,fvert=.3)
