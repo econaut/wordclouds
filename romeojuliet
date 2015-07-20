@@ -1,0 +1,36 @@
+# Romeo and Juliet
+library(tm)
+library(dplyr)
+library(tagcloud)
+
+# Romeo & Juliet
+raw<-readLines(file("http://www.gutenberg.org/files/1513/1513.txt"))
+
+
+dat<-paste(raw[337:5556],collapse=" ")
+dat<-tolower(dat)
+dat<-removeNumbers(dat)
+dat<-removePunctuation(dat)
+exclude<-c("shall","thee","thy","thus","will","come","know","may","upon","hath","now","well",
+           "make","let","see","tell","yet","like","put","speak","give","speak","can","comes",
+           "makes","sees","tells","likes","puts","speaks","gives","speaks","knows","say","says",
+           "take","takes","exeunt","though","hear","think","hears","thinks","listen","listens",
+           "hear","hears","follow","commercially","commercial","readable","personal","doth",
+           "membership","stand","therefore","complete","tis","electronic","prohibited","must",
+           "look","looks","call","calls","done","prove","whose","enter","one","words","thou","came")
+dat<-removeWords(dat,exclude)
+dat<-removeWords(dat,stopwords("english"))
+
+dat<-strsplit(dat,split=" ")[[1]]
+dat<-dat[dat!=""]
+dat<-dat[nchar(dat)>2]
+
+dat.tbl<-tbl_df(as.data.frame(dat))
+dat.tbl<-count(dat.tbl,sort=TRUE,vars=dat)
+
+dat.tbl[,"n"]<-dat.tbl[,"n"]/sum(dat.tbl[,"n"])
+dat.tbl<-cbind(dat.tbl,cumsum(dat.tbl[,"n"]))
+names(dat.tbl)<-c("vars","n","cumsum")
+dat.tbl<-dat.tbl[dat.tbl[,"cumsum"]<=.5,]
+
+tagcloud(dat.tbl$vars,weights=dat.tbl$n,fvert=.3)
