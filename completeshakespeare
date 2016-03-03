@@ -1,8 +1,15 @@
 # Complete work of William Shakespeare
 
+# Load packages
+library(tm)
+library(dplyr)
+library(tagcloud)
+
+# Read text file into R
 rawc<-readLines(file("http://www.gutenberg.org/files/100/100.txt")) # Read the text lines
 
-dat<-paste(rawc[173:124369],collapse=" ") # 
+# Transform data
+dat<-paste(rawc[173:124369],collapse=" ")
 dat<-tolower(dat)
 dat<-removeNumbers(dat)
 dat<-removePunctuation(dat)
